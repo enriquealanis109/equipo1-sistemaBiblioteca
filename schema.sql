@@ -1,4 +1,3 @@
---QUERY PARA LA BASE DE DATOS 
 
 CREATE TABLE users(
     id SERIAL PRIMARY KEY,
@@ -16,7 +15,7 @@ CREATE TABLE loans(
     loan_date TIMESTAMP NOT NULL,
     due_date TIMESTAMP NOT NULL,
     return_date TIMESTAMP NOT NULL,
-    status BOOLEAN NOT NULL DEFAULT TRUE,
+    status BOOLEAN NOT NULL DEFAULT TRUE ,
 
     CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES books(id),
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
