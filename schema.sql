@@ -44,5 +44,3 @@ CREATE TABLE books_authors (
     CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
     CONSTRAINT fk_author FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE
 );
-
-   SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';
