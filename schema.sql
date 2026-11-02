@@ -8,3 +8,10 @@ CREATE TABLE users(
     phone VARCHAR (20),
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS authors (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    birth_date DATE,
+    nationality VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
