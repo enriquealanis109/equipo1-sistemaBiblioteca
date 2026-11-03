@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { query } from "../config/db.js";
+import { getAllBooks, bookById, createsBook, updatesBook, deletesBook } from "../models/booksModel.js";
 
 export async function getBooks(req: Request, res: Response) {
   try {
-    const queryResult = await query("SELECT * FROM books");
-    res.json(queryResult.rows);
+    const books = await getAllBooks();
+    res.json(books.rows);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al obtener los libros" });
@@ -12,10 +12,9 @@ export async function getBooks(req: Request, res: Response) {
 }
 
 export async function getBookById(req: Request, res: Response) {
-  const { id } = req.params;
-  const queryText = "SELECT * FROM books WHERE id = $1";
+  const id  = Number(req.params.id);
   try {
-    const queryResult = await query(queryText, [id]);
+    const queryResult = await bookById(id);
     if (queryResult.rowCount === 0) {
       return res.status(404).json({ error: "Libro no encontrado" });
     }
@@ -29,10 +28,7 @@ export async function getBookById(req: Request, res: Response) {
 export async function createBook(req: Request, res: Response) {
   const { title, publisher, year, category, description } = req.body;
   try {
-    const queryText =
-      "INSERT INTO books (title, publisher, year, category, description) VALUES ($1, $2, $3, $4, $5) RETURNING *";
-    const values = [title, publisher, year !== undefined ? year : null, category, description !== undefined ? description : null];
-    const queryResult = await query(queryText, values);
+    const queryResult = await createsBook(title, publisher, year, category, description);
     res.status(201).json({message: "Libro creado exitosamente", book: queryResult.rows[0] });
   } catch (error) {
     console.error(error);
@@ -41,13 +37,10 @@ export async function createBook(req: Request, res: Response) {
 }
 
 export async function updateBook(req: Request, res: Response) { 
-  const { id } = req.params;
+  const id = Number(req.params.id);
   const { title, publisher, year, category, description } = req.body;
   try {
-    const queryText =
-      "UPDATE books SET title = $1, publisher = $2, year = $3, category = $4, description = $5 WHERE id = $6 RETURNING *";
-    const values = [title, publisher, year, category, description, id];
-    const queryResult = await query(queryText, values);
+    const queryResult = await updatesBook(id, title, publisher, year, category, description);
     if (queryResult.rowCount === 0) {
       return res.status(404).json({ error: "Libro no encontrado" });
     }
@@ -59,10 +52,9 @@ export async function updateBook(req: Request, res: Response) {
 }
 
 export async function deleteBook(req: Request, res: Response) { 
-  const { id } = req.params;
+  const id = Number(req.params.id);
   try {
-    const queryText = "DELETE FROM books WHERE id = $1 RETURNING *";
-    const queryResult = await query(queryText, [id]);
+    const queryResult = await deletesBook(id);
     if (queryResult.rowCount === 0) {
       return res.status(404).json({ error: "Libro no encontrado" });
     }
