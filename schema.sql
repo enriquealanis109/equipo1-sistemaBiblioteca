@@ -8,6 +8,23 @@ CREATE TABLE users(
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE books (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    publisher VARCHAR(255) NOT NULL,
+    year INTEGER,
+    category VARCHAR(100) NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS authors (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    birth_date DATE,
+    nationality VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE loans(
     id SERIAL PRIMARY KEY,
     book_id INT NOT NULL,
@@ -19,22 +36,6 @@ CREATE TABLE loans(
 
     CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES books(id),
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
-)
-CREATE TABLE IF NOT EXISTS authors (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(150) NOT NULL,
-    birth_date DATE,
-    nationality VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE books (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    publisher VARCHAR(255) NOT NULL,
-    year INTEGER,
-    category VARCHAR(100) NOT NULL,
-    description TEXT
 );
 
 CREATE TABLE books_authors (
