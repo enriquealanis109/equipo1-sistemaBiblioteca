@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import booksRouter from "./routes/booksRoutes.js";
 import authorsRouter from "./routes/authorsRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import booksAuthorsRouter from "./routes/routes.booksauthors.js";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", booksRouter);
+app.use("/api", booksAuthorsRouter);
 app.use("/api/authors", authorsRouter);
 app.use("/api/users", userRoutes);
 
