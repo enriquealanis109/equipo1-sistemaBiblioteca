@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getAllBooks, bookById, createsBook, updatesBook, deletesBook } from "../models/booksModel.js";
+import { getAllBooks, bookById, createsBook, updatesBook, deletesBook } from "../models/bookModel.js";
 
 export async function getBooks(req: Request, res: Response) {
   try {
@@ -38,7 +38,7 @@ export async function createBook(req: Request, res: Response) {
 
 export async function updateBook(req: Request, res: Response) { 
   const id = Number(req.params.id);
-  const { title, publisher, year, category, description } = req.body;
+  const { title, publisher, year, category, description } = req.body
   try {
     const queryResult = await updatesBook(id, title, publisher, year, category, description);
     if (queryResult.rowCount === 0) {
