@@ -2,7 +2,7 @@ import type { Application, Request, Response } from "express";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import booksRouter from "./routes/booksRoutes.js";
+import booksRouter from "./routes/bookRoutes.js";
 import authorsRouter from "./routes/authorsRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import booksAuthorsRouter from "./routes/routes.booksauthors.js";
