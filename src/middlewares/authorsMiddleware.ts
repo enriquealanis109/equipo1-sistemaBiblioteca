@@ -1,65 +1,33 @@
 import type { NextFunction, Request, Response } from "express";
-
-function isValidDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return false;
-  }
-
-  const date = new Date(value);
-  return (
-    !Number.isNaN(date.getTime()) &&
-    date.toISOString().slice(0, 10) === value
-  );
-}
+import {
+  authorSchema,
+  authorIdSchema,
+} from "../schemas/authorsSchema.js";
 
 export function validateAuthorData(
   req: Request,
   res: Response,
   next: NextFunction,
 ): void {
-  if (
-    typeof req.body !== "object" ||
-    req.body === null ||
-    Array.isArray(req.body)
-  ) {
-    res.status(400).json({ error: "El cuerpo de la solicitud debe ser un objeto" });
-    return;
-  }
+  const result = authorSchema.safeParse(req.body);
 
-  const { name, birth_date, nationality } = req.body;
-
-  if (typeof name !== "string" || name.trim().length === 0 || name.length > 150) {
+  if (!result.success) {
     res.status(400).json({
-      error: "El nombre es obligatorio y debe tener como máximo 150 caracteres",
+      error: "Datos del autor inválidos",
+      details: result.error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      })),
     });
     return;
   }
 
-  if (
-    birth_date !== undefined &&
-    birth_date !== null &&
-    (typeof birth_date !== "string" || !isValidDate(birth_date))
-  ) {
-    res.status(400).json({
-      error: "La fecha de nacimiento debe tener el formato YYYY-MM-DD",
-    });
-    return;
-  }
+  req.body = {
+    name: result.data.name,
+    birth_date: result.data.birth_date ?? null,
+    nationality: result.data.nationality ?? null,
+  };
 
-  if (
-    nationality !== undefined &&
-    nationality !== null &&
-    (typeof nationality !== "string" || nationality.length > 100)
-  ) {
-    res.status(400).json({
-      error: "La nacionalidad debe ser texto de máximo 100 caracteres",
-    });
-    return;
-  }
-
-  req.body.name = name.trim();
-  req.body.birth_date = birth_date ?? null;
-  req.body.nationality = nationality ?? null;
   next();
 }
 
@@ -68,10 +36,18 @@ export function validateAuthorId(
   res: Response,
   next: NextFunction,
 ): void {
-  const id = Number(req.params.id);
-  if (!Number.isInteger(id) || id <= 0) {
-    res.status(400).json({ error: "El id debe ser un entero positivo" });
+  const result = authorIdSchema.safeParse(req.params);
+
+  if (!result.success) {
+    res.status(400).json({
+      error: "ID de autor inválido",
+      details: result.error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      })),
+    });
     return;
   }
+
   next();
 }
