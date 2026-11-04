@@ -3,7 +3,7 @@ import { query } from "../config/db.js";
 export const UserModel = {
   async findAll() {
     const { rows } = await query(
-      "SELECT id. name, email,role,phone,created_at FROM users ORDER BY id",
+      "SELECT id, name, email,role,phone,created_at FROM users ORDER BY id",
     );
     return rows;
   },
