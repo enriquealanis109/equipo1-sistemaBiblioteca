@@ -2,13 +2,10 @@ import type { Application, Request, Response } from "express";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-<<<<<<< Updated upstream
 import booksRouter from "./routes/booksRoutes.js";
-=======
-import booksRouter from "./routes/bookRoutes.js";
 import authorsRouter from "./routes/authorsRoutes.js";
->>>>>>> Stashed changes
 import userRoutes from "./routes/userRoutes.js";
+import booksAuthorsRouter from "./routes/routes.booksauthors.js";
 
 dotenv.config();
 
@@ -19,6 +16,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", booksRouter);
+app.use("/api", booksAuthorsRouter);
+app.use("/api/authors", authorsRouter);
 app.use("/api/users", userRoutes);
 
 app.get("/", function (req: Request, res: Response) {
