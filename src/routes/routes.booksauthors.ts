@@ -11,7 +11,7 @@ import {
   validateBooksAuthorsParams,
 } from "../middlewares/middlewares.booksauthors.js";
 
-const router = Router();
+const router :Router = Router();
 
 router.get("/booksauthors", getBooksAuthors);
 router.post("/booksauthors", validateBooksAuthors, createBooksAuthors);
@@ -21,7 +21,6 @@ router.delete(
   deleteBooksAuthors,
 );
 
-// Consultas de la relacion muchos a muchos
 router.get("/books/:id/authors", getAuthorsByBook);
 router.get("/authors/:id/books", getBooksByAuthor);
 
