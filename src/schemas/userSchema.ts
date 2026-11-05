@@ -22,6 +22,17 @@ export const createUserSchema = z.object({
     .optional(),
 });
 
-export const updateUserSchema = createUserSchema;
+export const getUsersQuerySchema = z.object({
+  name: z.string().trim().optional(),
+  email: z.string().trim().optional(),
+  role: z
+    .enum(["estudiante", "docente"], {
+      message: "el rol debe ser estudiante o docente",
+    })
+    .optional(),
+  limit: z.string().regex(/^\d+$/, "el límite debe ser un número").optional(),
+});
 
+export const updateUserSchema = createUserSchema;
+export type GetUsersQueryInput = z.infer<typeof getUsersQuerySchema>;
 export type CreateUserInput = z.infer<typeof createUserSchema>;
