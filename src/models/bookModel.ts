@@ -1,8 +1,41 @@
 import { query } from "../config/db.js";
 
-export async function getAllBooks() {
-  const queryText = "SELECT * FROM books ORDER BY id ASC";
-  return query(queryText);
+export async function getAllBooks(filters: {
+  title?: string | undefined;
+  publisher?: string | undefined;
+  category?: string | undefined;
+  limit?: number | undefined;
+}) {
+  let sqlText = "SELECT * FROM books WHERE 1=1";
+  let paramIndex = 1;
+  const values: any[] = [];
+
+  if (filters.title) {
+    sqlText += ` AND title ILIKE $${paramIndex}`;
+    values.push(`%${filters.title}%`);
+    paramIndex++;
+  }
+  if (filters.publisher) {
+    sqlText += ` AND publisher ILIKE $${paramIndex}`;
+    values.push(`%${filters.publisher}%`);
+    paramIndex++;
+  }
+  if (filters.category) {
+    sqlText += ` AND category ILIKE $${paramIndex}`;
+    values.push(`%${filters.category}%`);
+    paramIndex++;
+  }
+
+  sqlText += ` ORDER BY id ASC`;
+
+  if (filters.limit) {
+    sqlText += ` LIMIT $${paramIndex}`;
+    values.push(Number(filters.limit));
+    paramIndex++;
+  }
+
+  const { rows }= await query(sqlText, values);
+  return rows;
 }
 
 export async function bookById(id: number) {
