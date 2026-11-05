@@ -1,13 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import { createBooksAuthorSchema } from "../schemas/booksauthorsSchemas.js";
 
-// Solo book_id y author_id (la tabla books_authors no tiene mas columnas)
 const bookAuthorSchema = createBooksAuthorSchema.pick({
   book_id: true,
   author_id: true,
 });
 
-// Valida el body de POST /booksauthors
 export const validateBooksAuthors = (
   req: Request,
   res: Response,
@@ -28,7 +26,6 @@ export const validateBooksAuthors = (
   next();
 };
 
-// Valida los params de /booksauthors/:book_id/:author_id
 export const validateBooksAuthorsParams = (
   req: Request,
   res: Response,
