@@ -8,10 +8,13 @@ import {
   type AuthorData,
 } from "../models/authorsModel.js";
 
-export async function getAuthors(_req: Request, res: Response) {
+
+export async function getAuthors(req: Request, res: Response) {
   try {
-    const authors = await findAuthors();
-    return res.status(200).json(authors);
+    const filters = res.locals.authorListQuery;
+    const result = await findAuthors(filters);
+
+    return res.status(200).json(result);
   } catch (error) {
     console.error("[GET /api/authors]", error);
     return res.status(500).json({ error: "Error al obtener los autores" });

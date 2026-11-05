@@ -14,13 +14,59 @@ export interface AuthorData {
   nationality: string | null;
 }
 
+export interface AuthorListFilters {
+  page: number;
+  limit: number;
+  search?: string | undefined;
+  nationality?: string | undefined;
+}
+
+export interface AuthorsPage {
+  authors: Author[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 const authorColumns = "id, name, birth_date, nationality, created_at";
 
-export async function getAuthors(): Promise<Author[]> {
-  const result = await pool.query<Author>(
-    `SELECT ${authorColumns} FROM authors ORDER BY id`,
-  );
-  return result.rows;
+export async function getAuthors(
+  filters: AuthorListFilters,
+): Promise<AuthorsPage> {
+  const filterValues = [filters.search ?? null, filters.nationality ?? null];
+  const offset = (filters.page - 1) * filters.limit;
+  const [countResult, authorsResult] = await Promise.all([
+    pool.query<{ total: string }>(
+      `SELECT COUNT(*)::text AS total
+       FROM authors
+       WHERE ($1::text IS NULL OR name ILIKE '%' || $1 || '%')
+         AND ($2::text IS NULL OR nationality ILIKE '%' || $2 || '%')`,
+      filterValues,
+    ),
+    pool.query<Author>(
+      `SELECT ${authorColumns}
+       FROM authors
+       WHERE ($1::text IS NULL OR name ILIKE '%' || $1 || '%')
+         AND ($2::text IS NULL OR nationality ILIKE '%' || $2 || '%')
+       ORDER BY id
+       LIMIT $3 OFFSET $4`,
+      [...filterValues, filters.limit, offset],
+    ),
+  ]);
+  const count = countResult.rows[0];
+  if (!count) {
+    throw new Error("No se recibió el conteo de autores desde la base de datos");
+  }
+
+  const total = Number(count.total);
+  return {
+    authors: authorsResult.rows,
+    total,
+    page: filters.page,
+    limit: filters.limit,
+    totalPages: Math.ceil(total / filters.limit),
+  };
 }
 
 export async function getAuthorById(id: number): Promise<Author | undefined> {
