@@ -1,9 +1,19 @@
 import type { Request, Response } from "express";
 import { UserModel } from "../models/userModel.js";
+import type { GetUsersQueryInput } from "../schemas/userSchema.js";
 
-export async function getUsers(req: Request, res: Response) {
+export async function getUsers(
+  req: Request<{}, {}, {}, GetUsersQueryInput>,
+  res: Response,
+) {
   try {
-    const users = await UserModel.findAll();
+    const { name, email, role, limit } = req.query;
+    const users = await UserModel.findAll({
+      name,
+      email,
+      role,
+      limit: limit ? Number(limit) : undefined,
+    });
     res.status(200).json({
       ok: true,
       mensaje: "Lista de usuarios",
