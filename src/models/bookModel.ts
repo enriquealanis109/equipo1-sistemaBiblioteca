@@ -5,8 +5,9 @@ export async function getAllBooks(filters: {
   publisher?: string | undefined;
   category?: string | undefined;
   limit?: number | undefined;
+  page?: number | undefined;
 }) {
-  let sqlText = "SELECT * FROM books WHERE 1=1";
+  let sqlText = "WHERE 1=1";
   let paramIndex = 1;
   const values: any[] = [];
 
@@ -26,16 +27,27 @@ export async function getAllBooks(filters: {
     paramIndex++;
   }
 
-  sqlText += ` ORDER BY id ASC`;
+  const countQuery = `SELECT COUNT(*) FROM books ${sqlText}`;
+  const countResult = await query(countQuery, values);
+  const totalBooks = Number(countResult.rows[0].count);
 
-  if (filters.limit) {
-    sqlText += ` LIMIT $${paramIndex}`;
-    values.push(Number(filters.limit));
-    paramIndex++;
-  }
+  const pageNum = filters.page ? Number(filters.page): 1;
+  const limitNum = filters.limit ? Number(filters.limit) : 10;
+  const offset = (pageNum - 1) * limitNum;
 
-  const { rows }= await query(sqlText, values);
-  return rows;
+  let dataQuery = `SELECT * FROM books ${sqlText} ORDER BY id ASC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+
+  const queryValues = [...values, limitNum, offset];
+
+  const { rows }= await query(dataQuery, queryValues);
+
+  return {
+    totalData: totalBooks,  
+    limit: limitNum,           
+    currentPage: pageNum,      
+    totalPages: Math.ceil(totalBooks / limitNum),    
+    books: rows                
+  };
 }
 
 export async function bookById(id: number) {

@@ -7,8 +7,9 @@ export async function getBooks(req: Request, res: Response) {
     const publisher = req.query.publisher as string | undefined;
     const category = req.query.category as string | undefined;
     const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const page = req.query.page ? Number(req.query.page) : undefined;
 
-    const books = await getAllBooks({title, publisher, category, limit});
+    const books = await getAllBooks({title, publisher, category, limit, page});
     res.json(books);
   } catch (error) {
     console.error(error);
