@@ -9,11 +9,12 @@ import {
 import {
   validateAuthorData,
   validateAuthorId,
+  validateAuthorListQuery,
 } from "../middlewares/authorsMiddleware.js";
 
 const router = Router();
 
-router.get("/", getAuthors);
+router.get("/", validateAuthorListQuery, getAuthors);
 router.get("/:id", validateAuthorId, getAuthorById);
 router.post("/", validateAuthorData, createAuthor);
 router.put("/:id", validateAuthorId, validateAuthorData, updateAuthor);
