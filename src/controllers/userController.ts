@@ -1,24 +1,30 @@
 import type { Request, Response } from "express";
 import { UserModel } from "../models/userModel.js";
+import { z } from "zod";
+import { getUsersQuerySchema } from "../schemas/userSchema.js";
 import type { GetUsersQueryInput } from "../schemas/userSchema.js";
-
 export async function getUsers(
   req: Request<{}, {}, {}, GetUsersQueryInput>,
   res: Response,
 ) {
   try {
-    const { name, email, role, limit } = req.query;
-    const users = await UserModel.findAll({
-      name,
-      email,
-      role,
-      limit: limit ? Number(limit) : undefined,
-    });
+    const result = getUsersQuerySchema.safeParse(req.query);
+    if (!result.success) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "Parámetros de consulta inválidos",
+        errors: z.flattenError(result.error).fieldErrors,
+      });
+    }
+
+    const { name, email, role, page, limit } = result.data;
+    const users = await UserModel.findAll({ name, email, role, page, limit });
+
     res.status(200).json({
       ok: true,
       mensaje: "Lista de usuarios",
-      total: users.length,
-      data: users,
+      data: users.data,
+      pagination: users.pagination,
     });
   } catch (error) {
     console.error("[GET /users]", error);
