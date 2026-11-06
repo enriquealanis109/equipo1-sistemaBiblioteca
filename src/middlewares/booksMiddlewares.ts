@@ -1,11 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError, ZodSchema } from "zod";
 import { z } from "zod";
+type RequestSource = "body" | "params" | "query";
 
-export const validateBookData = (schema: ZodSchema) => {
+export function validateBookData (
+  schema: ZodSchema,
+  source: RequestSource = "body",
+) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      req.body = await schema.parseAsync(req.body);
+      await schema.parseAsync(req[source]);
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -18,6 +22,6 @@ export const validateBookData = (schema: ZodSchema) => {
         return;
       }
       next(error);
-    };
-  }
+    }
+  };
 };

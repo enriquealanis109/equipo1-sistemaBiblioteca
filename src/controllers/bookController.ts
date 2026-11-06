@@ -3,8 +3,14 @@ import { getAllBooks, bookById, createsBook, updatesBook, deletesBook } from "..
 
 export async function getBooks(req: Request, res: Response) {
   try {
-    const books = await getAllBooks();
-    res.json(books.rows);
+    const title = req.query.title as string | undefined;
+    const publisher = req.query.publisher as string | undefined;
+    const category = req.query.category as string | undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const page = req.query.page ? Number(req.query.page) : undefined;
+
+    const books = await getAllBooks({title, publisher, category, limit, page});
+    res.json(books);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al obtener los libros" });
@@ -28,8 +34,8 @@ export async function getBookById(req: Request, res: Response) {
 export async function createBook(req: Request, res: Response) {
   const { title, publisher, year, category, description } = req.body;
   try {
-    const queryResult = await createsBook(title, publisher, year, category, description);
-    res.status(201).json({message: "Libro creado exitosamente", book: queryResult.rows[0] });
+    const newBook = await createsBook(title, publisher, year, category, description) as any;
+    res.status(201).json({message: "Libro creado exitosamente", book: newBook[0] });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al crear el libro" });
@@ -44,7 +50,7 @@ export async function updateBook(req: Request, res: Response) {
     if (queryResult.rowCount === 0) {
       return res.status(404).json({ error: "Libro no encontrado" });
     }
-    res.json({message: "Libro actualizado exitosamente", book: queryResult.rows[0] });
+    res.json({message: "Libro actualizado exitosamente", book: queryResult.rows[0]});
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al actualizar el libro" });

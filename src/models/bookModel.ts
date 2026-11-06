@@ -1,8 +1,53 @@
 import { query } from "../config/db.js";
 
-export async function getAllBooks() {
-  const queryText = "SELECT * FROM books ORDER BY id ASC";
-  return query(queryText);
+export async function getAllBooks(filters: {
+  title?: string | undefined;
+  publisher?: string | undefined;
+  category?: string | undefined;
+  limit?: number | undefined;
+  page?: number | undefined;
+}) {
+  let sqlText = "WHERE 1=1";
+  let paramIndex = 1;
+  const values: any[] = [];
+
+  if (filters.title) {
+    sqlText += ` AND title ILIKE $${paramIndex}`;
+    values.push(`%${filters.title}%`);
+    paramIndex++;
+  }
+  if (filters.publisher) {
+    sqlText += ` AND publisher ILIKE $${paramIndex}`;
+    values.push(`%${filters.publisher}%`);
+    paramIndex++;
+  }
+  if (filters.category) {
+    sqlText += ` AND category ILIKE $${paramIndex}`;
+    values.push(`%${filters.category}%`);
+    paramIndex++;
+  }
+
+  const countQuery = `SELECT COUNT(*) FROM books ${sqlText}`;
+  const countResult = await query(countQuery, values);
+  const totalBooks = Number(countResult.rows[0].count);
+
+  const pageNum = filters.page ? Number(filters.page): 1;
+  const limitNum = filters.limit ? Number(filters.limit) : 10;
+  const offset = (pageNum - 1) * limitNum;
+
+  let dataQuery = `SELECT * FROM books ${sqlText} ORDER BY id ASC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+
+  const queryValues = [...values, limitNum, offset];
+
+  const { rows }= await query(dataQuery, queryValues);
+
+  return {
+    totalData: totalBooks,  
+    limit: limitNum,           
+    currentPage: pageNum,      
+    totalPages: Math.ceil(totalBooks / limitNum),    
+    books: rows                
+  };
 }
 
 export async function bookById(id: number) {
