@@ -31,8 +31,8 @@ export const paginationQuerySchema = z.object({
 
 // GET /booksauthors?book_id=1&author_id=2&page=1&limit=10
 export const getBooksAuthorsQuerySchema = paginationQuerySchema.extend({
-  book_id: idPositivo.shape.id.optional(),
-  author_id: idPositivo.shape.id.optional(),
+  book_id: idPositivo.shape.id,
+  author_id: idPositivo.shape.id,
 });
 
 export type CreateBooksAuthorInput = z.infer<typeof createBooksAuthorSchema>;
