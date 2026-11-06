@@ -30,7 +30,16 @@ export const getUsersQuerySchema = z.object({
       message: "el rol debe ser estudiante o docente",
     })
     .optional(),
-  limit: z.string().regex(/^\d+$/, "el límite debe ser un número").optional(),
+  page: z
+    .string()
+    .regex(/^\d+$/, "la página debe ser un número")
+    .transform(Number)
+    .default(1),
+  limit: z
+    .string()
+    .regex(/^\d+$/, "el límite debe ser un número")
+    .transform(Number)
+    .default(10),
 });
 
 export const updateUserSchema = createUserSchema;

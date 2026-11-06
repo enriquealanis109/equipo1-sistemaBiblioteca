@@ -5,38 +5,48 @@ export const UserModel = {
     name?: string | undefined;
     email?: string | undefined;
     role?: string | undefined;
-    limit?: number | undefined;
+    page: number;
+    limit: number;
   }) {
-    let sql =
-      "SELECT id, name, email, role, phone, created_at FROM users WHERE 1=1";
-    const values = [];
+    const { name, email, role, page, limit } = filters;
+    let sql = "WHERE 1=1";
+    const values: any[] = [];
     let paramIndex = 1;
 
     if (filters.name) {
       sql += ` AND name ILIKE $${paramIndex}`;
-      values.push(`%${filters.name}%`);
+      values.push(`%${name}%`);
       paramIndex++;
     }
     if (filters.email) {
       sql += ` AND email ILIKE $${paramIndex}`;
-      values.push(`%${filters.email}%`);
+      values.push(`%${email}%`);
       paramIndex++;
     }
     if (filters.role) {
       sql += ` AND role = $${paramIndex}`;
-      values.push(filters.role);
-      paramIndex++;
-    }
-    sql += " ORDER BY id";
-
-    if (filters.limit) {
-      sql += ` LIMIT $${paramIndex}`;
-      values.push(filters.limit);
+      values.push(role);
       paramIndex++;
     }
 
-    const { rows } = await query(sql, values);
-    return rows;
+    // Contar todos los que cumplen los filtros
+    const countQuery = `SELECT COUNT(*) FROM users ${sql}`;
+    const countResult = await query(countQuery, values);
+    const totalItem = parseInt(countResult.rows[0].count, 10);
+
+    // Traer solo los de esta pagina
+    const offset = (page - 1) * limit;
+    const dataQuery = `SELECT id, name, email, role, phone, created_at FROM users ${sql} ORDER BY id LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    const { rows } = await query(dataQuery, [...values, limit, offset]);
+    return {
+      data: rows,
+      pagination: {
+        totalItem,
+        itemsPerPage: limit,
+        currentPage: page,
+        totalPages: Math.ceil(totalItem / limit),
+      },
+    };
   },
 
   async findById(id: number) {
