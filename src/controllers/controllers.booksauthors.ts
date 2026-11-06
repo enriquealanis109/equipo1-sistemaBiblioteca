@@ -2,17 +2,18 @@ import type { Response, Request } from "express";
 import { z } from "zod";
 import {
   BooksAuthorsModel,
+  getBooksAuthorsById as getRelations,
   createBooksAuthors as createRelation,
   deleteBooksAuthors as deleteRelation,
   getAuthorsByBook as findAuthorsByBook,
-  getBooksAuthors as findBooksByAuthor,
+  getBooksByAuthor as findBooksByAuthor,
 } from "../models/booksautorsModel.js";
 import {
   getBooksAuthorsQuerySchema,
   paginationQuerySchema,
 } from "../schemas/booksauthorsSchemas.js";
 
-export async function getBooksAuthors(req: Request, res: Response) {
+export async function getBooksAuthorsById(req: Request, res: Response) {
   const parsed = getBooksAuthorsQuerySchema.safeParse(req.query);
   if (!parsed.success) {
     return res.status(400).json({

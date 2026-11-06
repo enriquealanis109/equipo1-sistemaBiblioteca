@@ -1,14 +1,15 @@
 import { z } from "zod";
 
-const idPositivo = (campo: string) =>
-  z.coerce
-    .number({ error: `${campo} debe ser un número` })
-    .int(`${campo} debe ser un número entero`)
-    .positive(`${campo} debe ser mayor a 0`);
+const idPositivo = z.object({
+  id: z.coerce
+    .number({ error: `id debe ser un número` })
+    .int(`id debe ser un número entero`)
+    .positive(`id debe ser mayor a 0`),
+});
 
 export const createBooksAuthorSchema = z.object({
-  book_id: idPositivo("book_id"),
-  author_id: idPositivo("author_id"),
+  book_id: idPositivo.shape.id,
+  author_id: idPositivo.shape.id,
 });
 
 export const booksAuthorParamsSchema = createBooksAuthorSchema;
@@ -30,8 +31,8 @@ export const paginationQuerySchema = z.object({
 
 // GET /booksauthors?book_id=1&author_id=2&page=1&limit=10
 export const getBooksAuthorsQuerySchema = paginationQuerySchema.extend({
-  book_id: idPositivo("book_id").optional(),
-  author_id: idPositivo("author_id").optional(),
+  book_id: idPositivo.shape.id.optional(),
+  author_id: idPositivo.shape.id.optional(),
 });
 
 export type CreateBooksAuthorInput = z.infer<typeof createBooksAuthorSchema>;

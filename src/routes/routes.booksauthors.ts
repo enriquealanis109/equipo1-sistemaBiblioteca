@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  getBooksAuthors,
+  getBooksAuthorsById,
   createBooksAuthors,
   deleteBooksAuthors,
   getAuthorsByBook,
@@ -13,7 +13,7 @@ import {
 
 const router :Router = Router();
 
-router.get("/booksauthors", getBooksAuthors);
+router.get("/booksauthors/:book_id/:author_id", getBooksAuthorsById);
 router.post("/booksauthors", validateBooksAuthors, createBooksAuthors);
 router.delete(
   "/booksauthors/:book_id/:author_id",
